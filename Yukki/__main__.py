@@ -45,7 +45,6 @@ from Yukki.Inline import private_panel
 
 loop = asyncio.get_event_loop()
 console = Console()
-HELPABLE = {}
 
 
 async def initiate_bot():
@@ -214,19 +213,6 @@ async def initiate_bot():
     console.print(f"\n[red]Stopping Bot")
 
 
-home_text_pm = f"""Hello ,
-My name is {BOT_NAME}.
-A Telegram Music+Video Streaming bot with some useful features.
-
-All commands can be used with: / """
-
-
-@app.on_message(filters.command("help") & filters.private)
-async def help_command(_, message):
-    text, keyboard = await help_parser(message.from_user.mention)
-    await app.send_message(message.chat.id, text, reply_markup=keyboard)
-
-
 @app.on_message(filters.command("start") & filters.private)
 async def start_command(_, message):
     if len(message.text.split()) > 1:
@@ -274,14 +260,6 @@ async def start_command(_, message):
                     LOG_GROUP_ID,
                     f"{message.from_user.mention} has just started bot to check <code>SUDOLIST</code>\n\n**USER ID:** {sender_id}\n**USER NAME:** {sender_name}",
                 )
-        if name == "help":
-            text, keyboard = await help_parser(message.from_user.mention)
-            await message.delete()
-            return await app.send_text(
-                message.chat.id,
-                text,
-                reply_markup=keyboard,
-            )
         if name[0] == "i":
             m = await message.reply_text("🔎 Fetching Info!")
             query = (str(name)).replace("info_", "", 1)
@@ -313,10 +291,7 @@ async def start_command(_, message):
                 [
                     [
                         InlineKeyboardButton(
-                            text="🎥 Watch Youtube Video", url=f"{link}"
-                        ),
-                        InlineKeyboardButton(
-                            text="🔄 Close", callback_data="close"
+                            text="🗑️ Close", callback_data="close"
                         ),
                     ],
                 ]
@@ -338,11 +313,6 @@ async def start_command(_, message):
                     f"{message.from_user.mention} has just started bot to check <code>VIDEO INFORMATION</code>\n\n**USER ID:** {sender_id}\n**USER NAME:** {sender_name}",
                 )
             return
-    out = private_panel()
-    await message.reply_text(
-        home_text_pm,
-        reply_markup=InlineKeyboardMarkup(out[1]),
-    )
     if await is_on_off(5):
         sender_id = message.from_user.id
         sender_name = message.from_user.first_name
