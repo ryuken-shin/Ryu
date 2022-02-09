@@ -3,10 +3,7 @@ import os
 import time
 from os import listdir, mkdir
 
-import heroku3
 from aiohttp import ClientSession
-from git import Repo
-from git.exc import GitCommandError, InvalidGitRepositoryError
 from motor.motor_asyncio import AsyncIOMotorClient as Bot
 from rich.console import Console
 from rich.table import Table
@@ -25,14 +22,6 @@ from Yukki.Utilities.tasks import install_requirements
 loop = asyncio.get_event_loop()
 console = Console()
 
-
-### Heroku Shit
-UPSTREAM_BRANCH = UPSTREAM_BRANCH
-UPSTREAM_REPO = UPSTREAM_REPO
-
-### Modules
-MOD_LOAD = []
-MOD_NOLOAD = []
 
 ### Mongo DB
 MONGODB_CLI = Bot(mango)
@@ -97,16 +86,7 @@ async def initiate_bot():
     global ASSID3, ASSNAME3, ASSMENTION3, ASSUSERNAME3
     global ASSID4, ASSNAME4, ASSMENTION4, ASSUSERNAME4
     global ASSID5, ASSNAME5, ASSMENTION5, ASSUSERNAME5
-    global Heroku_cli, Heroku_app
     os.system("clear")
-    header = Table(show_header=True, header_style="bold yellow")
-    header.add_column(
-        "\x59\x75\x6b\x6b\x69\x20\x4d\x75\x73\x69\x63\x20\x42\x6f\x74\x20\x3a\x20\x54\x68\x65\x20\x4d\x6f\x73\x74\x20\x41\x64\x76\x61\x6e\x63\x65\x64\x20\x4d\x75\x73\x69\x63\x20\x42\x6f\x74"
-    )
-    console.print(header)
-    with console.status(
-        "[magenta] Yukki Music Bot Booting...",
-    ) as status:
         console.print("┌ [red]Booting Up The Clients...\n")
         await app.start()
         console.print("└ [green]Booted Bot Client")
@@ -222,40 +202,6 @@ async def initiate_bot():
                 )
         SUDOERS = (SUDOERS + sudoers + OWNER_ID) if sudoers else SUDOERS
         console.print("└ [green]Loaded Sudo Users Successfully!\n")
-        try:
-            repo = Repo()
-        except GitCommandError:
-            console.print("┌ [red] Checking Git Updates!")
-            console.print("└ [red]Git Command Error\n")
-            return
-        except InvalidGitRepositoryError:
-            console.print("┌ [red] Checking Git Updates!")
-            repo = Repo.init()
-            if "origin" in repo.remotes:
-                origin = repo.remote("origin")
-            else:
-                origin = repo.create_remote("origin", UPSTREAM_REPO)
-            origin.fetch()
-            repo.create_head(UPSTREAM_BRANCH, origin.refs[UPSTREAM_BRANCH])
-            repo.heads[UPSTREAM_BRANCH].set_tracking_branch(
-                origin.refs[UPSTREAM_BRANCH]
-            )
-            repo.heads[UPSTREAM_BRANCH].checkout(True)
-            try:
-                repo.create_remote("origin", UPSTREAM_REPO)
-            except BaseException:
-                pass
-            nrs = repo.remote("origin")
-            nrs.fetch(UPSTREAM_BRANCH)
-            try:
-                nrs.pull(UPSTREAM_BRANCH)
-            except GitCommandError:
-                repo.git.reset("--hard", "FETCH_HEAD")
-            await install_requirements(
-                "pip3 install --no-cache-dir -r requirements.txt"
-            )
-            console.print("└ [red]Git Client Update Completed\n")
-
 
 loop.run_until_complete(initiate_bot())
 
